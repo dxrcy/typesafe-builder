@@ -8,7 +8,7 @@ called twice. Likewise for the `age` method.
 
 ```rs
 let person = Person::builder()
-    .name("John".to_string())
+    .name("John")
     .age(42)
     .build();
 println!("{:#?}", person);

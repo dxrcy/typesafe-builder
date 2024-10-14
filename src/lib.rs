@@ -1,12 +1,14 @@
 use std::mem::MaybeUninit;
 
+type Name = &'static str;
+
 /// Example type
 #[derive(Debug)]
 pub struct Person {
-    pub name: String,
+    pub name: Name,
     pub age: u8,
-    pub partner: Option<String>,
-    pub friends: Vec<String>,
+    pub partner: Option<Name>,
+    pub friends: Vec<Name>,
     pub is_dead: bool,
 }
 
@@ -14,12 +16,12 @@ pub struct Person {
 // Individual const parameters are required; cannot use aggregate type
 pub struct PersonBuilder<const NAME: bool, const AGE: bool, const PARTNER: bool> {
     // Two fields which each must be given exactly once
-    name: MaybeUninit<String>,
+    name: MaybeUninit<Name>,
     age: MaybeUninit<u8>,
     // A field which may be given once (defaults to `None`)
-    partner: Option<String>,
+    partner: Option<Name>,
     // Two fields which can be updated any number of times and aren't affected by const parameters
-    friends: Vec<String>,
+    friends: Vec<Name>,
     is_dead: bool,
 }
 
@@ -58,7 +60,7 @@ impl<const PARTNER: bool> PersonBuilder<true, true, PARTNER> {
 
 impl<const AGE: bool, const PARTNER: bool> PersonBuilder<false, AGE, PARTNER> {
     /// Set the person's name
-    pub fn name(self, name: String) -> PersonBuilder<true, AGE, PARTNER> {
+    pub fn name(self, name: Name) -> PersonBuilder<true, AGE, PARTNER> {
         PersonBuilder {
             name: MaybeUninit::new(name),
             age: self.age,
@@ -84,7 +86,7 @@ impl<const NAME: bool, const PARTNER: bool> PersonBuilder<NAME, false, PARTNER> 
 
 impl<const NAME: bool, const AGE: bool> PersonBuilder<NAME, AGE, false> {
     /// Set the person's partner
-    pub fn partner(self, partner: String) -> PersonBuilder<NAME, AGE, true> {
+    pub fn partner(self, partner: Name) -> PersonBuilder<NAME, AGE, true> {
         PersonBuilder {
             name: self.name,
             age: self.age,
@@ -97,7 +99,7 @@ impl<const NAME: bool, const AGE: bool> PersonBuilder<NAME, AGE, false> {
 
 impl<const NAME: bool, const AGE: bool, const PARTNER: bool> PersonBuilder<NAME, AGE, PARTNER> {
     /// Add a friend of the person
-    pub fn push_friend(mut self, friend_name: String) -> Self {
+    pub fn push_friend(mut self, friend_name: Name) -> Self {
         self.friends.push(friend_name);
         self
     }
